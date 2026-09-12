@@ -1,41 +1,29 @@
 export default {
-  async fetch(request, env) {
-
+  async fetch(request) {
     const url = new URL(request.url);
 
-    /*
-     * TEST WORKER
-     */
-
+    // GET test
     if (request.method === "GET") {
-
       return new Response(
-        "Nestyin Connect Worker is working!",
+        JSON.stringify({
+          success: true,
+          message: "Nestyin Connect Worker is working!"
+        }),
         {
           status: 200,
           headers: {
-            "Content-Type": "text/plain"
+            "Content-Type": "application/json"
           }
         }
       );
     }
 
-
-    /*
-     * FORM SUBMISSION
-     */
-
+    // POST test
     if (request.method === "POST") {
-
       try {
-
         const data = await request.json();
 
-        console.log(
-          "Nestyin Connect submission:",
-          data
-        );
-
+        console.log("Received submission:", data);
 
         return new Response(
           JSON.stringify({
@@ -45,7 +33,6 @@ export default {
           }),
           {
             status: 200,
-
             headers: {
               "Content-Type": "application/json"
             }
@@ -53,32 +40,33 @@ export default {
         );
 
       } catch (error) {
-
         return new Response(
           JSON.stringify({
             success: false,
-            message: "Invalid submission.",
+            message: "Invalid JSON received.",
             error: error.message
           }),
           {
             status: 400,
-
             headers: {
               "Content-Type": "application/json"
             }
           }
         );
-
       }
     }
 
-
     return new Response(
-      "Method not allowed",
+      JSON.stringify({
+        success: false,
+        message: "Method not allowed"
+      }),
       {
-        status: 405
+        status: 405,
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
-
   }
 };
