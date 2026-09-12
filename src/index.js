@@ -1,21 +1,35 @@
 export default {
   async fetch(request) {
-    const url = new URL(request.url);
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    };
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders
+      });
+    }
+
+    const jsonResponse = (body, status = 200) => new Response(
+      JSON.stringify(body),
+      {
+        status,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders
+        }
+      }
+    );
 
     // GET test
     if (request.method === "GET") {
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: "Nestyin Connect Worker is working!"
-        }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      );
+      return jsonResponse({
+        success: true,
+        message: "Nestyin Connect Worker is working!"
+      });
     }
 
     // POST test
@@ -25,48 +39,24 @@ export default {
 
         console.log("Received submission:", data);
 
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: "Submission received successfully.",
-            received: data
-          }),
-          {
-            status: 200,
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
-        );
+        return jsonResponse({
+          success: true,
+          message: "Submission received successfully.",
+          received: data
+        });
 
       } catch (error) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: "Invalid JSON received.",
-            error: error.message
-          }),
-          {
-            status: 400,
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
-        );
+        return jsonResponse({
+          success: false,
+          message: "Invalid JSON received.",
+          error: error.message
+        }, 400);
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: "Method not allowed"
-      }),
-      {
-        status: 405,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
+    return jsonResponse({
+      success: false,
+      message: "Method not allowed"
+    }, 405);
   }
 };
