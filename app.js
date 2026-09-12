@@ -228,7 +228,7 @@ async function testWorker() {
      */
 
     const response = await fetch(
-      "https://test.nestyinconnect.workers.dev",
+      "https://test.nestyinconnect.workers.dev/submit",
       {
         method: "POST",
 

@@ -1,5 +1,7 @@
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
+
+    const url = new URL(request.url);
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
@@ -7,7 +9,10 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type"
     };
 
-    // CORS preflight
+    /*
+     * CORS preflight
+     */
+
     if (request.method === "OPTIONS") {
 
       return new Response(null, {
@@ -17,27 +22,16 @@ export default {
 
     }
 
-    // GET test
-    if (request.method === "GET") {
+    /*
+     * FORM SUBMISSION API
+     *
+     * POST /submit
+     */
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: "Nestyin Connect Worker is working!"
-        }),
-        {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-
-    }
-
-    // POST test
-    if (request.method === "POST") {
+    if (
+      request.method === "POST" &&
+      url.pathname === "/submit"
+    ) {
 
       try {
 
@@ -84,18 +78,25 @@ export default {
 
     }
 
-    // Anything else
+    /*
+     * EVERYTHING ELSE
+     *
+     * Let Cloudflare Assets serve the website files.
+     */
+
+    if (env.ASSETS) {
+
+      return env.ASSETS.fetch(request);
+
+    }
+
     return new Response(
-      JSON.stringify({
-        success: false,
-        message: "Method not allowed",
-        method: request.method
-      }),
+      "Nestyin Connect Worker is running.",
       {
-        status: 405,
+        status: 200,
         headers: {
           ...corsHeaders,
-          "Content-Type": "application/json"
+          "Content-Type": "text/plain"
         }
       }
     );
